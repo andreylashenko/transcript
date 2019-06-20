@@ -23,7 +23,7 @@ public class MessageController {
     }
 
     @GetMapping
-    @JsonView(Views.IdName.class)
+
     public List<Message> list() {
         return messageRepo.findAll();
     }

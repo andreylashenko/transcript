@@ -1,16 +1,30 @@
 package teamlead.transcript.controller;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import teamlead.transcript.domain.LeadZvon;
+import teamlead.transcript.repo.LeadZvonRepository;
 
-@Controller
+import java.util.List;
+
+@RestController
 @RequestMapping("leadzvon")
 public class LeadZvonController {
 
+    private LeadZvonRepository leadZvonRepository;
+
+    public LeadZvonController(LeadZvonRepository leadZvonRepository) {
+        this.leadZvonRepository = leadZvonRepository;
+    }
+
     @PostMapping
-    public String getDataFromLZ()
+    public LeadZvon saveDataFromLZ(@RequestBody LeadZvon leadZvon)
     {
-        return null;
+        return leadZvonRepository.save(leadZvon);
+    }
+
+    @GetMapping
+    public List<LeadZvon> getData()
+    {
+        return leadZvonRepository.findAll();
     }
 }
