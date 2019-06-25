@@ -15,16 +15,18 @@ public class LeadZvon {
     private int operatorExtension;
     private String leadName;
     private String leadPhone;
+    private String recording;
     private int date;
 
     public LeadZvon() {}
 
-    public LeadZvon(String text, String operatorName, int operatorExtension, String leadName, String leadPhone, int date) {
+    public LeadZvon(String text, String operatorName, int operatorExtension, String leadName, String leadPhone, String recording, int date) {
         this.text = text;
         this.operatorName = operatorName;
         this.operatorExtension = operatorExtension;
         this.leadName = leadName;
         this.leadPhone = leadPhone;
+        this.recording = recording;
         this.date = date;
     }
 
@@ -74,6 +76,14 @@ public class LeadZvon {
 
     public void setLeadPhone(String leadPhone) {
         this.leadPhone = leadPhone;
+    }
+
+    public String getRecording() {
+        return recording;
+    }
+
+    public void setRecording(String recording) {
+        this.recording = recording;
     }
 
     public int getDate() {
