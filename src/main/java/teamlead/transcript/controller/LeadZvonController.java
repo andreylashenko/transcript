@@ -7,6 +7,8 @@ import teamlead.transcript.repo.LeadZvonRepository;
 import teamlead.transcript.service.LeadZvonService;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 
 @RestController
@@ -41,9 +43,9 @@ public class LeadZvonController {
         return leadZvonRepository.save(leadZvon);
     }
 
-    @GetMapping
-    public List<LeadZvon> getData()
-    {
-        return leadZvonRepository.findAll();
+    @GetMapping("/{words}")
+    public List<LeadZvon> getData(@PathVariable String words) throws UnsupportedEncodingException {
+        String str = URLDecoder.decode( words, "UTF-8" );
+        return leadZvonRepository.findByTextContaining(str);
     }
 }
