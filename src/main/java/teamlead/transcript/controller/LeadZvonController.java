@@ -6,6 +6,7 @@ import teamlead.transcript.domain.LeadZvon;
 import teamlead.transcript.repo.LeadZvonRepository;
 import teamlead.transcript.service.LeadZvonService;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -28,7 +29,11 @@ public class LeadZvonController {
     {
         String record = null;
         try {
-            record = leadZvonService.getRecording(leadZvon.getLeadPhone(), leadZvon.getOperatorExtension());
+            try {
+                record = leadZvonService.getRecording(leadZvon.getLeadPhone(), leadZvon.getOperatorExtension());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } catch (JSONException e) {
             new RuntimeException("Cannot get record");
         }
