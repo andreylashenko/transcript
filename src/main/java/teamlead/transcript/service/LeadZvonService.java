@@ -1,15 +1,20 @@
 package teamlead.transcript.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import teamlead.transcript.domain.Asterisk;
 import teamlead.transcript.repo.LeadZvonRepository;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 
 @Service
@@ -31,18 +36,38 @@ public class LeadZvonService
 
     public String getRecording(String leadPhone, int operatorExtension) throws JSONException, IOException {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
         Asterisk asterisk = new Asterisk();
-        asterisk.setApiKey(asteriskKey);
+        asterisk.setApi_key(asteriskKey);
         asterisk.setDateStart("1970-01-01 00:00:00");
         asterisk.setDataEnd("2019-06-27 11:37:16");
-        asterisk.setExtension(100);
+        asterisk.setExtension(operatorExtension);
         asterisk.setOffset("0");
-        asterisk.setLeadPhone("1");
+        asterisk.setLeadPhone(leadPhone);
 
-        HttpEntity<Asterisk> entity = new HttpEntity<Asterisk>(asterisk, headers);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        return restTemplate.exchange(asteriskUrl, HttpMethod.POST, entity, String.class).getBody();
+        ObjectMapper Obj = new ObjectMapper();
+        String jsonStr = Obj.writeValueAsString(asterisk);
+
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
+        map.add("data", jsonStr);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+        ResponseEntity<String> response = restTemplate.postForEntity( asteriskUrl, request , String.class );
+
+        JsonNode jsonNode = objectMapper.readTree(response.getBody());
+        String record = null;
+
+        for (JsonNode str : jsonNode.get("data")) {
+            if (str.get("urlrecord").toString().isEmpty()) {
+                record = str.get("recordingfile").toString().replaceAll("\"", "");
+            } else {
+                record = str.get("urlrecord").toString().replaceAll("\"", "");
+            }
+            break;
+        }
+
+        return record;
     }
 }

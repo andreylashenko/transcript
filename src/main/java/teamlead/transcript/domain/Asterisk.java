@@ -2,19 +2,19 @@ package teamlead.transcript.domain;
 
 public class Asterisk {
 
-    private String apiKey;
+    private String api_key;
     private int extension;
     private String leadPhone;
     private String DateStart;
     private String DataEnd;
     private String offset;
 
-    public String getApiKey() {
-        return apiKey;
+    public String getApi_key() {
+        return api_key;
     }
 
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
+    public void setApi_key(String api_key) {
+        this.api_key = api_key;
     }
 
     public int getExtension() {
@@ -60,7 +60,7 @@ public class Asterisk {
     @Override
     public String toString() {
         return "Asterisk{" +
-                "apiKey='" + apiKey + '\'' +
+                "apiKey='" + api_key + '\'' +
                 ", extension=" + extension +
                 ", leadPhone='" + leadPhone + '\'' +
                 ", DateStart='" + DateStart + '\'' +
