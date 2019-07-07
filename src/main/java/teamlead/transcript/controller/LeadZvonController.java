@@ -48,4 +48,9 @@ public class LeadZvonController {
         String str = URLDecoder.decode( words, "UTF-8" );
         return leadZvonRepository.findByTextContaining(str);
     }
+
+    @GetMapping("/list")
+    public List<LeadZvon> list() {
+        return leadZvonRepository.findAll();
+    }
 }
