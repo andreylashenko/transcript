@@ -11,11 +11,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import teamlead.transcript.domain.Asterisk;
 import teamlead.transcript.repo.LeadZvonRepository;
-
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-
 
 @Service
 public class LeadZvonService
@@ -34,7 +31,7 @@ public class LeadZvonService
         this.leadZvonRepository = leadZvonRepository;
     }
 
-    public String getRecording(String leadPhone, int operatorExtension) throws JSONException, IOException {
+    public HashMap getRecording(String leadPhone, int operatorExtension) throws JSONException, IOException {
 
         Asterisk asterisk = new Asterisk();
         asterisk.setApi_key(asteriskKey);
@@ -57,17 +54,21 @@ public class LeadZvonService
         ResponseEntity<String> response = restTemplate.postForEntity( asteriskUrl, request , String.class );
 
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
-        String record = null;
+
+        HashMap<String, String> data = new HashMap<>();
 
         for (JsonNode str : jsonNode.get("data")) {
+            data.put("duration", str.get("duration").toString().replaceAll("\"", ""));
+            data.put("calldate", str.get("calldate").toString().replaceAll("\"", ""));
+
             if (str.get("urlrecord").toString().isEmpty()) {
-                record = str.get("recordingfile").toString().replaceAll("\"", "");
+                data.put("urlrecord", str.get("recordingfile").toString().replaceAll("\"", ""));
             } else {
-                record = str.get("urlrecord").toString().replaceAll("\"", "");
+                data.put("urlrecord", str.get("urlrecord").toString().replaceAll("\"", ""));
             }
-            break;
         }
 
-        return record;
+        return data;
     }
 }
+

@@ -9,7 +9,9 @@ import teamlead.transcript.service.LeadZvonService;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("leadzvon")
@@ -27,19 +29,13 @@ public class LeadZvonController {
     }
 
     @PostMapping
-    public LeadZvon saveDataFromLZ(@RequestBody LeadZvon leadZvon)
-    {
-        String record = null;
-        try {
-            try {
-                record = leadZvonService.getRecording(leadZvon.getLeadPhone(), leadZvon.getOperatorExtension());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } catch (JSONException e) {
-            new RuntimeException("Cannot get record");
-        }
-        leadZvon.setRecording(record);
+    public LeadZvon saveDataFromLZ(@RequestBody LeadZvon leadZvon) throws IOException, JSONException {
+        HashMap<String, String> recordings = leadZvonService.getRecording(leadZvon.getLeadPhone(), leadZvon.getOperatorExtension());
+
+        leadZvon.setRecording(recordings.get("urlrecord"));
+        leadZvon.setDate(recordings.get("calldate"));
+        leadZvon.setDuration(Integer.parseInt(recordings.get("duration")));
+
         return leadZvonRepository.save(leadZvon);
     }
 

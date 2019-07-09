@@ -16,11 +16,12 @@ public class LeadZvon {
     private String leadName;
     private String leadPhone;
     private String recording;
-    private int date;
+    private String date;
+    private int duration;
 
     public LeadZvon() {}
 
-    public LeadZvon(String text, String operatorName, int operatorExtension, String leadName, String leadPhone, String recording, int date) {
+    public LeadZvon(String text, String operatorName, int operatorExtension, String leadName, String leadPhone, String recording, String date, int duration) {
         this.text = text;
         this.operatorName = operatorName;
         this.operatorExtension = operatorExtension;
@@ -28,6 +29,7 @@ public class LeadZvon {
         this.leadPhone = leadPhone;
         this.recording = recording;
         this.date = date;
+        this.duration = duration;
     }
 
     public Long getId() {
@@ -86,11 +88,19 @@ public class LeadZvon {
         this.recording = recording;
     }
 
-    public int getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(int date) {
+    public void setDate(String date) {
         this.date = date;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 }
