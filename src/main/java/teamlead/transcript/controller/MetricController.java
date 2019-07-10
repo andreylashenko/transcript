@@ -15,12 +15,12 @@ public class MetricController {
         this.leadZvonRepository = leadZvonRepository;
     }
 
-    @GetMapping("recordCount")
-    public Long recordCount() {
+    @GetMapping("recordsCount")
+    public Long recordsCount() {
         return leadZvonRepository.count();
     }
 
-    @GetMapping("todayRecordCount")
+    @GetMapping("todayRecordsCount")
     public Long todayRecords() {
         return leadZvonRepository.findTodayRecords();
     }
