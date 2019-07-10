@@ -2,6 +2,7 @@ package teamlead.transcript.domain;
 
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 public class LeadZvon {
@@ -16,12 +17,12 @@ public class LeadZvon {
     private String leadName;
     private String leadPhone;
     private String recording;
-    private String date;
+    private Date date;
     private int duration;
 
     public LeadZvon() {}
 
-    public LeadZvon(String text, String operatorName, int operatorExtension, String leadName, String leadPhone, String recording, String date, int duration) {
+    public LeadZvon(String text, String operatorName, int operatorExtension, String leadName, String leadPhone, String recording, Date date, int duration) {
         this.text = text;
         this.operatorName = operatorName;
         this.operatorExtension = operatorExtension;
@@ -88,11 +89,11 @@ public class LeadZvon {
         this.recording = recording;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 

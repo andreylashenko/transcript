@@ -9,9 +9,11 @@ import teamlead.transcript.service.LeadZvonService;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("leadzvon")
@@ -29,11 +31,12 @@ public class LeadZvonController {
     }
 
     @PostMapping
-    public LeadZvon saveDataFromLZ(@RequestBody LeadZvon leadZvon) throws IOException, JSONException {
+    public LeadZvon saveDataFromLZ(@RequestBody LeadZvon leadZvon) throws IOException, JSONException, ParseException {
         HashMap<String, String> recordings = leadZvonService.getRecording(leadZvon.getLeadPhone(), leadZvon.getOperatorExtension());
 
         leadZvon.setRecording(recordings.get("urlrecord"));
-        leadZvon.setDate(recordings.get("calldate"));
+        Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(recordings.get("calldate"));
+        leadZvon.setDate(date);
         leadZvon.setDuration(Integer.parseInt(recordings.get("duration")));
 
         return leadZvonRepository.save(leadZvon);
