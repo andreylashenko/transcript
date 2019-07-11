@@ -3,14 +3,20 @@ package teamlead.transcript.controller;
 import org.json.JSONException;
 import org.springframework.web.bind.annotation.*;
 import teamlead.transcript.domain.LeadZvon;
-import teamlead.transcript.repo.LeadZvonRepository;
+import teamlead.transcript.repo.leadzvon.LeadZvonRepository;
 import teamlead.transcript.service.LeadZvonService;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +27,12 @@ public class LeadZvonController {
 
     private LeadZvonRepository leadZvonRepository;
     private LeadZvonService leadZvonService;
+    private EntityManager em;
 
-    public LeadZvonController(
-            LeadZvonRepository leadZvonRepository,
-            LeadZvonService leadZvonService
-    ) {
+    public LeadZvonController(LeadZvonRepository leadZvonRepository, LeadZvonService leadZvonService, EntityManager em) {
         this.leadZvonRepository = leadZvonRepository;
         this.leadZvonService = leadZvonService;
+        this.em = em;
     }
 
     @PostMapping
@@ -42,14 +47,38 @@ public class LeadZvonController {
         return leadZvonRepository.save(leadZvon);
     }
 
-    @GetMapping("/{words}")
-    public List<LeadZvon> getData(@PathVariable String words) throws UnsupportedEncodingException {
-        String str = URLDecoder.decode( words, "UTF-8" );
-        return leadZvonRepository.findByTextContaining(str);
-    }
-
     @GetMapping("/list")
-    public List<LeadZvon> list() {
-        return leadZvonRepository.findAll();
+    public List<LeadZvon> list(
+            @RequestParam(required = false) String words,
+            @RequestParam(required = false) String operatorId,
+            @RequestParam(required = false) String leadPhone,
+            @RequestParam(required = false) String leadExternalId) throws UnsupportedEncodingException {
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<LeadZvon> cq = cb.createQuery(LeadZvon.class);
+
+        Root<LeadZvon> leadZvon = cq.from(LeadZvon.class);
+        List<Predicate> predicates = new ArrayList<>();
+
+        if(words != null) {
+            predicates.add(cb.like(leadZvon.get("text"), "%" + URLDecoder.decode( words, "UTF-8" ) + "%"));
+        }
+
+        if(operatorId != null) {
+            predicates.add(cb.equal(leadZvon.get("operatorId"), operatorId));
+        }
+
+        if(leadPhone != null) {
+            predicates.add(cb.equal(leadZvon.get("leadPhone"), leadPhone));
+        }
+
+        if(leadExternalId != null) {
+            predicates.add(cb.equal(leadZvon.get("leadExternalId"), leadExternalId));
+        }
+
+        cq.where(predicates.toArray(new Predicate[0]));
+
+
+        return em.createQuery(cq).getResultList();
     }
 }
