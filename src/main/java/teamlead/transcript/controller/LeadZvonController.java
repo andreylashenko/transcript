@@ -3,6 +3,7 @@ package teamlead.transcript.controller;
 import org.json.JSONException;
 import org.springframework.web.bind.annotation.*;
 import teamlead.transcript.domain.LeadZvon;
+import teamlead.transcript.dto.Filter;
 import teamlead.transcript.repo.leadzvon.LeadZvonRepository;
 import teamlead.transcript.service.LeadZvonService;
 
@@ -47,14 +48,8 @@ public class LeadZvonController {
         return leadZvonRepository.save(leadZvon);
     }
 
-    @GetMapping("/list")
-    public List<LeadZvon> list(
-            @RequestParam(required = false) String words,
-            @RequestParam(required = false) String operatorId,
-            @RequestParam(required = false) String leadPhone,
-            @RequestParam(required = false) String leadExternalId,
-            @RequestParam(required = false) String dateStart,
-            @RequestParam(required = false) String dateEnd) throws UnsupportedEncodingException, ParseException {
+    @PostMapping("/list")
+    public List<LeadZvon> list(@RequestBody Filter filter) throws UnsupportedEncodingException, ParseException {
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<LeadZvon> cq = cb.createQuery(LeadZvon.class);
@@ -62,34 +57,32 @@ public class LeadZvonController {
         Root<LeadZvon> leadZvon = cq.from(LeadZvon.class);
         List<Predicate> predicates = new ArrayList<>();
 
-        if(words != null) {
-            predicates.add(cb.like(leadZvon.get("text"), "%" + URLDecoder.decode( words, "UTF-8" ) + "%"));
+        if(filter.getWords() != null && !filter.getWords().isEmpty()) {
+            predicates.add(cb.like(leadZvon.get("text"), "%" + URLDecoder.decode(filter.getWords(), "UTF-8" ) + "%"));
         }
 
-        if(operatorId != null) {
-            predicates.add(cb.equal(leadZvon.get("operatorId"), operatorId));
+        if(filter.getOperatorId() != null && !filter.getOperatorId().isEmpty()) {
+            predicates.add(cb.equal(leadZvon.get("operatorId"), filter.getOperatorId()));
         }
 
-        if(leadPhone != null) {
-            predicates.add(cb.equal(leadZvon.get("leadPhone"), leadPhone));
+        if(filter.getLeadPhone() != null && !filter.getLeadPhone().isEmpty()) {
+            predicates.add(cb.equal(leadZvon.get("leadPhone"), filter.getLeadPhone()));
         }
 
-        if(leadExternalId != null) {
-            predicates.add(cb.equal(leadZvon.get("leadExternalId"), leadExternalId));
+        if(filter.getLeadExternalId() != null && !filter.getLeadExternalId().isEmpty()) {
+            predicates.add(cb.equal(leadZvon.get("leadExternalId"), filter.getLeadExternalId()));
         }
 
-        if(dateStart != null) {
-            Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateStart);
+        if(filter.getDateStart() != null && !filter.getDateStart().isEmpty()) {
+            Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(filter.getDateStart());
 
             predicates.add(cb.greaterThan(leadZvon.get("date").as(Date.class), date));
-
         }
 
-        if(dateEnd != null) {
-            Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateEnd);
+        if(filter.getDateEnd() != null && !filter.getDateEnd().isEmpty()) {
+            Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(filter.getDateEnd());
 
             predicates.add(cb.lessThan(leadZvon.get("date").as(Date.class), date));
-
         }
 
         cq.where(predicates.toArray(new Predicate[0]));
