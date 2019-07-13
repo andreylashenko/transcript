@@ -10,6 +10,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import teamlead.transcript.domain.Asterisk;
+import teamlead.transcript.repo.leadzvon.LeadZvonRepository;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -23,11 +24,11 @@ public class LeadZvonService
     @Value("${ASTERISK_API_KEY}")
     private String asteriskKey;
 
-    private LeadZvonRepositoryInterface leadZvonRepository;
+    private LeadZvonRepository leadZvonRepository;
     private RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public LeadZvonService(LeadZvonRepositoryInterface leadZvonRepository) {
+    public LeadZvonService(LeadZvonRepository leadZvonRepository) {
         this.leadZvonRepository = leadZvonRepository;
     }
 

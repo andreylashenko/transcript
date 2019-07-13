@@ -52,7 +52,9 @@ public class LeadZvonController {
             @RequestParam(required = false) String words,
             @RequestParam(required = false) String operatorId,
             @RequestParam(required = false) String leadPhone,
-            @RequestParam(required = false) String leadExternalId) throws UnsupportedEncodingException {
+            @RequestParam(required = false) String leadExternalId,
+            @RequestParam(required = false) String dateStart,
+            @RequestParam(required = false) String dateEnd) throws UnsupportedEncodingException, ParseException {
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<LeadZvon> cq = cb.createQuery(LeadZvon.class);
@@ -74,6 +76,20 @@ public class LeadZvonController {
 
         if(leadExternalId != null) {
             predicates.add(cb.equal(leadZvon.get("leadExternalId"), leadExternalId));
+        }
+
+        if(dateStart != null) {
+            Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateStart);
+
+            predicates.add(cb.greaterThan(leadZvon.get("date").as(Date.class), date));
+
+        }
+
+        if(dateEnd != null) {
+            Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(dateEnd);
+
+            predicates.add(cb.lessThan(leadZvon.get("date").as(Date.class), date));
+
         }
 
         cq.where(predicates.toArray(new Predicate[0]));
