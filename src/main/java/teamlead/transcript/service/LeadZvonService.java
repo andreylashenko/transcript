@@ -10,10 +10,15 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import teamlead.transcript.domain.Asterisk;
+import teamlead.transcript.domain.LeadZvon;
 import teamlead.transcript.repo.leadzvon.LeadZvonRepository;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class LeadZvonService
@@ -32,12 +37,16 @@ public class LeadZvonService
         this.leadZvonRepository = leadZvonRepository;
     }
 
-    public HashMap getRecording(String leadPhone, int operatorExtension) throws JSONException, IOException {
+    private HashMap setRecording(String leadPhone, int operatorExtension) throws JSONException, IOException {
+
+        Date date = new Date();
+        String strDateFormat = "yyyy-MM-dd HH:mm:ss";
+        DateFormat dateFormat = new SimpleDateFormat(strDateFormat);
+        String formattedDate= dateFormat.format(date);
 
         Asterisk asterisk = new Asterisk();
-        asterisk.setApi_key(asteriskKey);
         asterisk.setDateStart("1970-01-01 00:00:00");
-        asterisk.setDataEnd("2019-06-27 11:37:16");
+        asterisk.setDataEnd(formattedDate);
         asterisk.setExtension(operatorExtension);
         asterisk.setOffset("0");
         asterisk.setLeadPhone(leadPhone);
@@ -50,8 +59,10 @@ public class LeadZvonService
 
         MultiValueMap<String, String> map = new LinkedMultiValueMap<String, String>();
         map.add("data", jsonStr);
+        map.add("api_key", asteriskKey);
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(map, headers);
+        HttpEntity<MultiValueMap> request = new HttpEntity<MultiValueMap>(map, headers);
+
         ResponseEntity<String> response = restTemplate.postForEntity( asteriskUrl, request , String.class );
 
         JsonNode jsonNode = objectMapper.readTree(response.getBody());
@@ -70,6 +81,36 @@ public class LeadZvonService
         }
 
         return data;
+    }
+
+    public void save(LeadZvon leadZvon) {
+        try {
+            HashMap<String, String> recordings = setRecording(leadZvon.getLeadPhone(), leadZvon.getOperatorExtension());
+            leadZvon.setRecording(recordings.get("urlrecord"));
+            leadZvon.setDuration(Integer.parseInt(recordings.get("duration")));
+        } catch (Exception e) {
+            leadZvon.setRecording("");
+        }
+
+        if(!leadZvon.getRecording().isEmpty()) {
+
+            HashMap<String, String> scolding = new HashMap<>();
+            scolding.put("х*", "хуй");
+            scolding.put("п*", "пидор");
+            scolding.put("с*", "сука");
+            scolding.put("б*", "блядь");
+
+            for (Map.Entry  str : scolding.entrySet()) {
+                if(leadZvon.getText().contains(str.getKey().toString())) {
+                    String newWord = leadZvon.getText().replace(str.getKey().toString(), str.getValue().toString());
+                    leadZvon.setText(newWord);
+                }
+            }
+
+            leadZvon.setText(leadZvon.getText().replace("*",""));
+            leadZvon.setDate(new Date());
+            leadZvonRepository.save(leadZvon);
+        }
     }
 }
 

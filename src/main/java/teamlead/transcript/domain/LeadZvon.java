@@ -1,6 +1,8 @@
 package teamlead.transcript.domain;
 
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -11,6 +13,8 @@ public class LeadZvon {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Lob
+    @Type(type = "org.hibernate.type.TextType")
     private String text;
     private String operatorName;
     private int operatorExtension;

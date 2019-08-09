@@ -1,26 +1,21 @@
 package teamlead.transcript.controller;
 
-import org.json.JSONException;
+
 import org.springframework.web.bind.annotation.*;
 import teamlead.transcript.domain.LeadZvon;
 import teamlead.transcript.dto.Filter;
 import teamlead.transcript.repo.leadzvon.LeadZvonRepository;
 import teamlead.transcript.service.LeadZvonService;
-
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RestController
@@ -38,19 +33,12 @@ public class LeadZvonController {
     }
 
     @PostMapping
-    public LeadZvon saveDataFromLZ(@RequestBody LeadZvon leadZvon) throws IOException, JSONException, ParseException {
-        HashMap<String, String> recordings = leadZvonService.getRecording(leadZvon.getLeadPhone(), leadZvon.getOperatorExtension());
-
-        leadZvon.setRecording(recordings.get("urlrecord"));
-        Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(recordings.get("calldate"));
-        leadZvon.setDate(date);
-        leadZvon.setDuration(Integer.parseInt(recordings.get("duration")));
-
-        return leadZvonRepository.save(leadZvon);
+    public void saveDataFromLZ(@RequestBody LeadZvon leadZvon) {
+        leadZvonService.save(leadZvon);
     }
 
     @PostMapping("/list")
-    public List<LeadZvon> list(@RequestBody Filter filter) throws UnsupportedEncodingException, ParseException {
+    public HashMap<String, Object> LeadZvonHashMap(@RequestBody Filter filter) throws UnsupportedEncodingException, ParseException {
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<LeadZvon> cq = cb.createQuery(LeadZvon.class);
@@ -62,8 +50,8 @@ public class LeadZvonController {
             predicates.add(cb.like(leadZvon.get("text"), "%" + URLDecoder.decode(filter.getWords(), "UTF-8" ) + "%"));
         }
 
-        if(filter.getOperatorId() != null && !filter.getOperatorId().isEmpty()) {
-            predicates.add(cb.equal(leadZvon.get("operatorId"), filter.getOperatorId()));
+        if(filter.getOperatorName() != null && !filter.getOperatorName().isEmpty()) {
+            predicates.add(cb.equal(leadZvon.get("operatorName"), filter.getOperatorName()));
         }
 
         if(filter.getLeadPhone() != null && !filter.getLeadPhone().isEmpty()) {
@@ -88,7 +76,13 @@ public class LeadZvonController {
 
         cq.where(predicates.toArray(new Predicate[0]));
 
+        long total = em.createQuery(cq).getResultList().size();
+        List<LeadZvon> list = em.createQuery(cq).setFirstResult(filter.getPage()).setMaxResults(filter.getLimit()).getResultList();
 
-        return em.createQuery(cq).getResultList();
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("content", list);
+        result.put("total", total);
+
+        return result;
     }
 }

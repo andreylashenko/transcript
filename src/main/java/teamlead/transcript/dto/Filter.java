@@ -3,11 +3,13 @@ package teamlead.transcript.dto;
 public class Filter {
 
     private String words;
-    private String operatorId;
+    private String operatorName;
     private String leadExternalId;
     private String leadPhone;
     private String dateStart;
     private String dateEnd;
+    private int page;
+    private int limit;
 
     public Filter() {
     }
@@ -20,12 +22,12 @@ public class Filter {
         this.words = words;
     }
 
-    public String getOperatorId() {
-        return operatorId;
+    public String getOperatorName() {
+        return operatorName;
     }
 
-    public void setOperatorId(String operatorId) {
-        this.operatorId = operatorId;
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
     }
 
     public String getLeadExternalId() {
@@ -58,5 +60,21 @@ public class Filter {
 
     public void setDateEnd(String dateEnd) {
         this.dateEnd = dateEnd;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getLimit() {
+        return limit;
+    }
+
+    public void setLimit(int limit) {
+        this.limit = limit;
     }
 }
